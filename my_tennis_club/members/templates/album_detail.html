@@ -1,0 +1,15 @@
+<h1>{{ album.title }}</h1>
+<p>{{ album.description }}</p>
+
+{% for photo in photos %}
+    <img src="{{ photo.image.url }}" alt="{{ photo.caption }}">
+    <p>{{ photo.caption }}</p>
+{% endfor %}
+
+<h2>Upload a photo</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload</button>
+</form>
+

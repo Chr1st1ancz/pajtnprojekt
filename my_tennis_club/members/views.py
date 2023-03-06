@@ -1,28 +1,18 @@
-from django.shortcuts import render
-from django.conf import settings
-from django.core.files.storage import FileSystemStorage
-from . import models
 from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import PhotoAlbum, Photo
 from django.template import loader
-from .models import Member
-def simple_upload(request):
-    if request.method == 'POST' and request.FILES['myfile']:
-        myfile = request.FILES['myfile']
-        fs = FileSystemStorage()
-        filename = fs.save(myfile.name, myfile)
-        member = models.Member(filename=myfile.name)
-        member.save()
-        uploaded_file_url = fs.url(filename)
-        return render(request, 'simple_upload.html', {
-            'uploaded_file_url': uploaded_file_url,
-            'mymembers': Member.objects.all().values()
-        })
-    return render(request, 'simple_upload.html')
-
-def members(request):
-  members = Member.objects.all().values()
-  template = loader.get_template('all_members.html')
-  context = {
-    'mymembers': members,
-  }
-  return HttpResponse(template.render(context, request))
+from .forms import PhotoForm
+def album_detail(request, album_id):
+    album = get_object_or_404(PhotoAlbum, id=album_id)
+    photos = Photo.objects.filter(album=album)
+    if request.method == 'POST':
+        form = PhotoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            template = loader.get_template('album_detail.html')
+            return HttpResponse(template.render({'album': album, 'photos': photos, 'form': form}, request))
+            #return redirect('album_detail', album_id=album_id)
+    else:
+        form = PhotoForm(initial={'album': album})
+    return render(request, 'album_detail.html', {'album': album, 'photos': photos, 'form': form})

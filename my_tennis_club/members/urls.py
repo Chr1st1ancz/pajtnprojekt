@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
+
 from . import views
 urlpatterns = [
-    path('members/', views.simple_upload, name='members'),
-path('memberlist/', views.members, name='members'),
+    path('members/', views.album_detail, name='members'),
+    path('members/<int:album_id>', views.album_detail, name='details'),
 ]
 
 if settings.DEBUG:
